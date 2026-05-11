@@ -1,0 +1,11 @@
+[project]
+name = "jarvis-ali"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "groq>=1.2.0",
+    "python-dotenv>=1.2.2",
+    "rich>=15.0.0",
+]
