@@ -6,6 +6,8 @@ from rich.markdown import Markdown
 from jarvis.config import GROQ_API_KEY, MODEL, TEMPERATURE
 from jarvis.conversation import Conversation
 from jarvis.personality import SYSTEM_PROMPT
+from jarvis.tools import registry  # noqa: F401 - declenche le chargement des outils
+import jarvis.tools  # noqa: F401 - charge tous les modules d'outils
 
 console = Console()
 
@@ -14,8 +16,10 @@ def main():
     client = Groq(api_key=GROQ_API_KEY)
     conversation = Conversation(client, SYSTEM_PROMPT, MODEL, TEMPERATURE)
 
-    console.print("[bold cyan]Jarvis v0.1.2[/bold cyan] - Phase 1 complete")
-    console.print("[dim]Commandes: 'exit' | '/reset' | '/compact' | '/stats'[/dim]\n")
+    available_tools = registry.list_tools()
+    console.print("[bold cyan]Jarvis v0.2.0[/bold cyan] - Phase 2: tool calling actif")
+    console.print(f"[dim]Outils charges ({len(available_tools)}): {', '.join(available_tools)}[/dim]")
+    console.print("[dim]Commandes: 'exit' | '/reset' | '/compact' | '/stats' | '/tools'[/dim]\n")
 
     while True:
         try:
@@ -35,40 +39,41 @@ def main():
 
         if cmd == "/reset":
             conversation.reset()
-            console.print("[yellow]Memoire effacee. On repart de zero.[/yellow]\n")
+            console.print("[yellow]Memoire effacee.[/yellow]\n")
             continue
 
         if cmd == "/compact":
-            console.print("[dim]Compaction manuelle...[/dim]")
             if conversation.compact():
                 console.print("[yellow]Historique compacte.[/yellow]\n")
             else:
-                console.print("[dim]Pas assez de messages pour compacter.[/dim]\n")
+                console.print("[dim]Pas assez de messages.[/dim]\n")
             continue
 
         if cmd == "/stats":
             console.print(
                 f"[dim]Messages: {conversation.message_count} | "
                 f"Tours: {conversation.turn_count} | "
-                f"Compactions effectuees: {conversation.compaction_count}[/dim]\n"
+                f"Compactions: {conversation.compaction_count}[/dim]\n"
             )
             continue
 
+        if cmd == "/tools":
+            console.print(f"[dim]Outils disponibles: {', '.join(registry.list_tools())}[/dim]\n")
+            continue
+
         try:
-            reply = conversation.send(user_input)
+            reply = conversation.send(user_input, console=console)
         except Exception as e:
             console.print(f"[red]Erreur: {e}[/red]\n")
             continue
 
-        # Auto-compaction si on depasse le seuil
         if conversation.should_compact():
-            console.print("[dim italic]Compaction automatique en cours...[/dim italic]")
+            console.print("[dim italic]Compaction auto...[/dim italic]")
             conversation.compact()
-            console.print("[dim italic]Historique compacte.[/dim italic]")
 
         console.print(
             f"\n[bold magenta]Jarvis:[/bold magenta] "
-            f"[dim](tour {conversation.turn_count}, {conversation.message_count} msgs)[/dim]"
+            f"[dim](tour {conversation.turn_count})[/dim]"
         )
         console.print(Markdown(reply))
         console.print()

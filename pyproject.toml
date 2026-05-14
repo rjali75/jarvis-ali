@@ -5,10 +5,15 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "ddgs>=9.14.2",
+    "folium>=0.20.0",
+    "geopy>=2.4.1",
     "groq>=1.2.0",
+    "numexpr>=2.14.1",
+    "plotly>=6.7.0",
     "python-dotenv>=1.2.2",
     "rich>=15.0.0",
-
+    "tavily-python>=0.7.24",
 ]
 [build-system]
 requires = ["hatchling"]

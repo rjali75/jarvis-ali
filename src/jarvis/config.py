@@ -4,11 +4,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Modèle LLM utilise (Groq)
-MODEL = "llama-3.3-70b-versatile"
+# Modele LLM utilise (Groq)
+MODEL = "openai/gpt-oss-120b"
 
 # Parametres de generation
 TEMPERATURE = 0.7
 
-# Cle API (lue depuis .env)
+# Cles API (lues depuis .env)
 GROQ_API_KEY = os.environ["GROQ_API_KEY"]
+TAVILY_API_KEY = os.environ.get("TAVILY_API_KEY")  # optionnelle (None si absente)
